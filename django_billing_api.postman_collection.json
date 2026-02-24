@@ -1,0 +1,191 @@
+{
+  "info": {
+    "name": "Billing-Service API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:8000"},
+    {"key": "access_token", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Obtener Token",
+          "event": [{"listen": "test", "script": {"exec": [
+            "var json = pm.response.json();",
+            "pm.collectionVariables.set('access_token', json.access);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/auth/token/",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\"username\": \"admin\", \"password\": \"admin123\"}"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Listar Clientes",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/clientes/",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}]
+          }
+        },
+        {
+          "name": "Listar Clientes (filtro razon_social)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/clientes/?razon_social=claro", "query": [{"key": "razon_social", "value": "claro"}]},
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}]
+          }
+        },
+        {
+          "name": "Crear Cliente",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/clientes/",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"identificacion\": \"0903369387\",\n  \"razon_social\": \"Empresa Demo S.A.\",\n  \"email\": \"demo@empresa.com\",\n  \"celular\": \"0999123456\"\n}"}
+          }
+        },
+        {
+          "name": "Detalle Cliente",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/clientes/1/",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}]
+          }
+        },
+        {
+          "name": "Actualizar Cliente (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/clientes/1/",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {"mode": "raw", "raw": "{\"celular\": \"0998765432\"}"}
+          }
+        },
+        {
+          "name": "Eliminar Cliente (Soft Delete) [Admin]",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/clientes/1/",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Líneas",
+      "item": [
+        {
+          "name": "Listar Líneas",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/lineas/",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}]
+          }
+        },
+        {
+          "name": "Listar Líneas (filtro por cliente)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/lineas/?cliente_id=1", "query": [{"key": "cliente_id", "value": "1"}]},
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}]
+          }
+        },
+        {
+          "name": "Crear Línea",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/lineas/",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"cliente\": 1,\n  \"linea_numero\": 1,\n  \"estado_linea\": \"ACTIVO\",\n  \"fecha_instalacion\": \"2024-01-15\"\n}"}
+          }
+        },
+        {
+          "name": "Estado Cobranza de Línea",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/lineas/1/estado-cobranza/",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rubros",
+      "item": [
+        {
+          "name": "Crear Rubro (vencido)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/rubros/",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{access_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"linea_servicio\": 1,\n  \"valor_total\": \"45.50\",\n  \"estado_rubro\": \"NO_PAGADO\",\n  \"fecha_emision\": \"2024-01-01T00:00:00Z\",\n  \"fecha_vencimiento\": \"2024-01-15T00:00:00Z\"\n}"}
+          }
+        },
+        {
+          "name": "Ejecutar Cobranza Manual [Admin]",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/rubros/ejecutar-cobranza/",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logs",
+      "item": [
+        {
+          "name": "Listar Logs de Cobranza",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/cobranza-logs/",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}]
+          }
+        },
+        {
+          "name": "Logs de una Línea específica",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/cobranza-logs/?linea_servicio=1", "query": [{"key": "linea_servicio", "value": "1"}]},
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Utilidades",
+      "item": [
+        {
+          "name": "Healthcheck",
+          "request": {"method": "GET", "url": "{{base_url}}/health/"}
+        },
+        {
+          "name": "Swagger UI",
+          "request": {"method": "GET", "url": "{{base_url}}/api/docs/"}
+        }
+      ]
+    }
+  ]
+}
